@@ -1,18 +1,23 @@
-const { Telegraf, session } = require("telegraf")
+const mongoose = require('mongoose')
+const { Telegraf } = require("telegraf")
 require('dotenv').config()
 
+const AuthMiddleware = require('./middleware/auth.middleware')
+const AuthController = require('./controllers/auth.controller')
+const StatController = require('./controllers/stat.controller')
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB conected success...'))
+  .catch(e => console.error(e))
+
 const text = require('./const');
-
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.start((ctx) => {
-  const { first_name, id } = ctx.message.from
-  console.log('Need registration')
-  ctx.reply(`Welcome ${first_name || 'guest!'} - ${id}`)
-})
-bot.help((ctx) => ctx.reply(text.commands))
 
-bot.on('sticker', (ctx) => ctx.reply('👍'))
-bot.hears('hi', (ctx) => ctx.reply('Hey there'))
+bot.use(AuthMiddleware)
+bot.start(AuthController.auth)
+bot.on('contact', AuthController.registration)
+bot.command('stat', StatController.getStat)
+bot.help((ctx) => ctx.reply(text.commands))
 bot.launch().then(() => console.log('Bot started success...'))
 
 // Enable graceful stop
