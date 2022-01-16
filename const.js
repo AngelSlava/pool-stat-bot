@@ -1,7 +1,6 @@
 const commands = `
-/start - Перезапустити бота
-/stat - Статистика
-/reset - Стерти всі дані
-/help - Допомога
+/add - Add result
+/stat - Statistic
+/help - Help
 `
 module.exports.commands = commands
