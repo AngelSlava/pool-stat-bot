@@ -2,20 +2,28 @@ const moment = require('moment');
 const {Scenes, Markup} = require('telegraf');
 const Workout = require('../models/workout.model')
 
+
 const addWorkoutResult = new Scenes.WizardScene(
   'ADD_WORKOUT_RESULT',
   (ctx) => {
     console.log('step 1')
+
     ctx.wizard.state.workout = {}
     ctx.replyWithHTML('<b>Дата тренування:</b> (<i>напр: 22.01.2022 aбо 22</i>)',
       Markup.keyboard(['Today', 'Yesterday'], {
-        columns: parseInt(2)
+        columns: 2
       }).oneTime().resize());
     return ctx.wizard.next();
   },
   (ctx) => {
     console.log('step 2')
+
+
     const date = ctx.message.text.toLowerCase()
+    if (date === 'cancel') {
+      return ctx.scene.leave();
+    }
+
     switch (date){
       case 'today':
         ctx.wizard.state.workout.date = moment().startOf('day').toDate()
@@ -25,7 +33,9 @@ const addWorkoutResult = new Scenes.WizardScene(
         break
       default:
         if (!moment(date, 'DD.MM.YYYY').isValid()) {
-          ctx.reply('Wrong date!');
+          ctx.reply('Wrong date!', Markup.keyboard(['Cancel'], {
+            columns: 2
+          }).oneTime().resize());
           return;
         }
         ctx.wizard.state.workout.date = moment(date, 'DD.MM.YYYY').startOf('day').toDate()
@@ -34,12 +44,14 @@ const addWorkoutResult = new Scenes.WizardScene(
 
     const dateText = moment(ctx.wizard.state.workout.date).format('DD.MM.YYYY')
     ctx.replyWithHTML(`Workout date: <b>${dateText}</b> ?`, Markup.keyboard(['Yes', 'No'], {
-      columns: parseInt(2)
+      columns: 2
     }).oneTime().resize());
     return ctx.wizard.next();
   },
   (ctx) => {
     console.log('step 3')
+
+
     const success = ctx.message.text.toLowerCase() === 'yes'
     if (!success) {
       ctx.reply('Type the date');
@@ -51,6 +63,8 @@ const addWorkoutResult = new Scenes.WizardScene(
   },
   async (ctx) => {
     console.log('step 4')
+
+
     const distance = ctx.message.text
     if (isNaN(distance)) {
       ctx.reply('Type only numbers!');
