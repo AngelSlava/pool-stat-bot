@@ -8,24 +8,24 @@ const addWorkoutResult = new Scenes.WizardScene(
     console.log('step 1')
     ctx.wizard.state.workout = {}
     ctx.replyWithHTML('<b>Дата тренування:</b> (<i>напр: 22.01.2022 aбо 22</i>)',
-      Markup.keyboard(['Сьогодні', 'Вчора'], {
+      Markup.keyboard(['Today', 'Yesterday'], {
         columns: parseInt(2)
       }).oneTime().resize());
     return ctx.wizard.next();
   },
   (ctx) => {
     console.log('step 2')
-    const date = ctx.message.text
+    const date = ctx.message.text.toLowerCase()
     switch (date){
-      case 'Сьогодні':
+      case 'today':
         ctx.wizard.state.workout.date = moment().startOf('day').toDate()
         break
-      case 'Вчора':
+      case 'yesterday':
         ctx.wizard.state.workout.date = moment().subtract(1, 'day').startOf('day').toDate()
         break
       default:
         if (!moment(date, 'DD.MM.YYYY').isValid()) {
-          ctx.reply('Перевірте дату');
+          ctx.reply('Wrong date!');
           return;
         }
         ctx.wizard.state.workout.date = moment(date, 'DD.MM.YYYY').startOf('day').toDate()
@@ -33,19 +33,19 @@ const addWorkoutResult = new Scenes.WizardScene(
     }
 
     const dateText = moment(ctx.wizard.state.workout.date).format('DD.MM.YYYY')
-    ctx.replyWithHTML(`Дата тренування: <b>${dateText}</b> ?`, Markup.keyboard(['Так', 'Ні'], {
+    ctx.replyWithHTML(`Workout date: <b>${dateText}</b> ?`, Markup.keyboard(['Yes', 'No'], {
       columns: parseInt(2)
     }).oneTime().resize());
     return ctx.wizard.next();
   },
   (ctx) => {
     console.log('step 3')
-    const success = ctx.message.text === 'Так'
+    const success = ctx.message.text.toLowerCase() === 'yes'
     if (!success) {
-      ctx.reply('Введіть дату ще раз');
+      ctx.reply('Type the date');
       return ctx.wizard.back()
     }
-    ctx.replyWithHTML('<b>Введіть дистанцію в км.</b> \nНаприклад: 2.5');
+    ctx.replyWithHTML('<b>Enter your result</b> \nExample: 2.5');
     return ctx.wizard.next();
 
   },
@@ -53,10 +53,9 @@ const addWorkoutResult = new Scenes.WizardScene(
     console.log('step 4')
     const distance = ctx.message.text
     if (isNaN(distance)) {
-      ctx.reply('Введіть будь ласка число');
+      ctx.reply('Type only numbers!');
       return;
     }
-
 
     ctx.wizard.state.workout.result = +distance;
 
@@ -77,7 +76,7 @@ const addWorkoutResult = new Scenes.WizardScene(
       candidate.result = result
       await candidate.save()
     }
-    ctx.reply('Данні зараховані!');
+    ctx.reply('Result saved!');
     return ctx.scene.leave();
   }
 )
