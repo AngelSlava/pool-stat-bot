@@ -2,13 +2,15 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const workoutSchema = new Schema({
-  created: {
+  result: Number,
+  date: {
     type: Date,
     default: Date.now
   },
-  updated: {
-    type: Date,
-    default: Date.now
+  user: {
+    ref: 'user',
+    type: Schema.Types.ObjectId,
+    required: true
   }
 })
 
@@ -18,4 +20,4 @@ try {
 } catch (e) {
   WorkoutSchema = mongoose.model('Workout')
 }
-module.exports = UserSchema
+module.exports = WorkoutSchema

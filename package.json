@@ -11,8 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^10.0.0",
+    "moment": "^2.29.1",
     "mongoose": "^6.1.5",
-    "telegraf": "^4.5.2"
+    "telegraf": "^4.5.2",
+    "telegraf-flow": "^8.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
